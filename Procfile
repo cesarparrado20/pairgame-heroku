@@ -1,0 +1,1 @@
+web: gunicorn pairgame.wsgi --log-file -
