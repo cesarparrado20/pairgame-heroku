@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'django_filters',
     'users',
     'worlds'
 ]
@@ -92,7 +94,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'es'
+LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'America/Bogota'
 
@@ -110,3 +112,19 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = BASE_DIR + '/media/'
 MEDIA_URL = '/media/'
+
+# REST Framework configuration
+
+REST_FRAMEWORK_DEFAULT_RENDERER_CLASSES = [
+    'rest_framework.renderers.JSONRenderer'
+]
+
+REST_FRAMEWORK_DEFAULT_PERMISSION_CLASSES = [
+    'rest_framework.permissions.AllowAny',
+    'rest_framework.permissions.IsAuthenticated'
+]
+
+REST_FRAMEWORK_DEFAULT_AUTHENTICATION_CLASSES = [
+    'rest_framework.authentication.BasicAuthentication',
+    'rest_framework.authentication.TokenAuthentication'
+]
