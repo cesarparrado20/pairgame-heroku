@@ -15,12 +15,14 @@ Including another URLconf
 """
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from pairgame import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('users.urls', namespace='users')),
+    path('', include('worlds.urls', namespace='worlds'))
 ]
 
 urlpatterns += static(settings.base.STATIC_URL, document_root=settings.base.STATIC_ROOT)
