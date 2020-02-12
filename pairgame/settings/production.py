@@ -33,6 +33,6 @@ CELERY_TIMEZONE = 'America/Bogota'
 CELERY_BEAT_SCHEDULE = {
     'scraping': {
         'task': 'worlds.tasks.scraping',
-        'schedule': crontab(hour=19, minute=51)
+        'schedule': crontab(hour=19, minute=55)
     }
 }
