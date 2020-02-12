@@ -1,8 +1,9 @@
 from celery import shared_task
 
+from worlds.models import World
 from worlds.utils import web_scraping
 
 
 @shared_task
 def scraping():
-    print("Hola!")
+    World.objects.create()
