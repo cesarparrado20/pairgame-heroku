@@ -1,6 +1,8 @@
 import urllib.request as rq
 
+import firebase_admin
 from bs4 import BeautifulSoup
+from firebase_admin import db
 
 from worlds.models import Image, World
 
@@ -33,10 +35,32 @@ def get_content_page(url):
     return soup
 
 
+def add_image_to_dict(id, data, total, current_dict):
+    option = (total % 3)
+    options = {
+        0: (total / 3),
+        1: ((total + 2) / 3),
+        2: ((total + 1) / 3)
+    }
+    level = options.get(option)
+    data.update({'level': level, 'available': False})
+    current_dict.update({id: data})
+    return current_dict
+
+
 def web_scraping(initial=False):
-    base_url = "https://www.eso.org/public/announcements/list/"
+    base_url = "https://www.eso.org/public/images/potw/list/"
     initial_content = get_content_page(base_url + "1/")
     publications = initial_content.find_all("div", {"class": "news-wrapper"})
+    image_ref = db.reference('/images')
+    images = image_ref.get()
+    images_keys = []
+    if images:
+        images = dict(images)
+        images_keys = list(images.keys())
+    else:
+        images = {}
+    count = len(images_keys) + 1
     if initial:
         for i in range(2, 6):
             aux_content = get_content_page(base_url + "{}/".format(i))
@@ -47,13 +71,14 @@ def web_scraping(initial=False):
         url = pub.find("div", {"class": "news-image"}).find("img").get("src")
         title = pub.find("div", {"class": "news-title"}).get_text()
         teaser = pub.find("div", {"class": "news-teaser"})
-        date = teaser.find("strong").get_text()
         description = teaser.get_text().split(".")[0]
-        day, month, year = date.split(" ")
-        date = "{}-{}-{:02}".format(year, MONTHS[month], int(day))
-        img, created = Image.objects.get_or_create(
-            id=id, url=url, title=title, description=description,
-            publication_date=date
-        )
-        if created:
-            create_level(3)
+        if not id in images_keys:
+            images = add_image_to_dict(
+                id,
+                {"url": url, "title": title, "description": description},
+                count,
+                images,
+            )
+            images_keys.append(id)
+            count = count + 1
+    image_ref.set(images)

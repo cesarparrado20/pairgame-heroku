@@ -135,4 +135,6 @@ REST_FRAMEWORK_DEFAULT_AUTHENTICATION_CLASSES = [
 # Firebase configuration
 
 cred = credentials.Certificate(BASE_DIR + "/pair-game-unillanos-firebase-adminsdk.json")
-FIREBASE = firebase_admin.initialize_app(cred)
+FIREBASE = firebase_admin.initialize_app(
+    cred, {'databaseURL': 'https://pair-game-unillanos.firebaseio.com/'}
+)

@@ -1,5 +1,5 @@
 run:
-	./manage.py runserver 0.0.0.0:8000 --settings=pairgame.settings.local
+	./manage.py runserver 0.0.0.0:8002 --settings=pairgame.settings.local
 migrate:
 	./manage.py makemigrations --settings=pairgame.settings.local
 	./manage.py migrate --settings=pairgame.settings.local

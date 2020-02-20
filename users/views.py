@@ -1,4 +1,8 @@
+import firebase_admin
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.views.generic import TemplateView
+from firebase_admin import db
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -8,6 +12,7 @@ from rest_framework.response import Response
 
 from users.models import Profile
 from users.serializers import ProfileSerializer
+from worlds.utils import web_scraping
 
 
 class RegisterAPIView(CreateAPIView):
@@ -54,3 +59,12 @@ class LoginAPIView(ObtainAuthToken):
             "profile_id": profile.id,
             "avatar": profile.avatar.url
         }, status=status.HTTP_200_OK)
+
+
+class FirebaseView(TemplateView):
+    template_name = "firebase/firebase.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(FirebaseView, self).get_context_data(**kwargs)
+        web_scraping(True)
+        return context
