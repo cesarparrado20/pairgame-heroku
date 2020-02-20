@@ -1,32 +1,6 @@
 import urllib.request as rq
-
-import firebase_admin
 from bs4 import BeautifulSoup
 from firebase_admin import db
-
-from worlds.models import Image, World
-
-MONTHS = {
-    "January": "01",
-    "February": "02",
-    "March": "03",
-    "April": "04",
-    "May": "05",
-    "June": "06",
-    "July": "07",
-    "August": "08",
-    "September": "09",
-    "October": "10",
-    "November": "11",
-    "December": "12",
-}
-
-
-def create_level(images_per_level):
-    images = Image.objects.filter(world__isnull=True).values_list("id", flat=True)
-    if len(images) == images_per_level:
-        world = World.objects.create()
-        Image.objects.filter(id__in=images).update(world_id=world.id)
 
 
 def get_content_page(url):
@@ -34,8 +8,7 @@ def get_content_page(url):
     soup = BeautifulSoup(html_content, "html.parser")
     return soup
 
-
-def add_image_to_dict(id, data, total, current_dict):
+def get_level(total):
     option = (total % 3)
     options = {
         0: (total / 3),
@@ -43,9 +16,7 @@ def add_image_to_dict(id, data, total, current_dict):
         2: ((total + 1) / 3)
     }
     level = options.get(option)
-    data.update({'level': level, 'available': False})
-    current_dict.update({id: data})
-    return current_dict
+    return level
 
 
 def web_scraping(initial=False):
@@ -61,24 +32,31 @@ def web_scraping(initial=False):
     else:
         images = {}
     count = len(images_keys) + 1
+    last_level = get_level(count)
     if initial:
         for i in range(2, 6):
             aux_content = get_content_page(base_url + "{}/".format(i))
             aux_publications = aux_content.find_all("div", {"class": "news-wrapper"})
             publications = publications + aux_publications
+    aux_dict = {}
     for pub in publications:
         id = pub.find("div", {"class": "news-id"}).get_text().split(" — ")[0]
         url = pub.find("div", {"class": "news-image"}).find("img").get("src")
         title = pub.find("div", {"class": "news-title"}).get_text()
         teaser = pub.find("div", {"class": "news-teaser"})
         description = teaser.get_text().split(".")[0]
-        if not id in images_keys:
-            images = add_image_to_dict(
-                id,
-                {"url": url, "title": title, "description": description},
-                count,
-                images,
-            )
+        if id not in images_keys:
+            new_level = get_level(count)
+            if new_level != last_level:
+                images.update(aux_dict)
+                aux_dict = {}
+            aux_dict.update({
+                id: {
+                    "url": url, "title": title, "description": description,
+                    "level": new_level
+                }
+            })
             images_keys.append(id)
             count = count + 1
+            last_level = new_level
     image_ref.set(images)
