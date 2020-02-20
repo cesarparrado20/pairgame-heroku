@@ -1,8 +1,9 @@
-import firebase_admin
-from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.views.generic import TemplateView
-from firebase_admin import db
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
+from django.views.generic import FormView
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -10,6 +11,7 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from users.forms import ScrapingForm
 from users.models import Profile
 from users.serializers import ProfileSerializer
 from worlds.utils import web_scraping
@@ -61,10 +63,15 @@ class LoginAPIView(ObtainAuthToken):
         }, status=status.HTTP_200_OK)
 
 
-class FirebaseView(TemplateView):
+class FirebaseView(LoginRequiredMixin, FormView):
     template_name = "firebase/firebase.html"
+    form_class = ScrapingForm
+    success_url = reverse_lazy('users:scraping_view')
 
-    def get_context_data(self, **kwargs):
-        context = super(FirebaseView, self).get_context_data(**kwargs)
-        web_scraping(True)
-        return context
+    def form_valid(self, form):
+        opcion = False
+        if form.data["opcion"] == "si":
+            opcion = True
+        web_scraping(opcion)
+        messages.success(self.request, "Scraping con exito!!!")
+        return HttpResponseRedirect(self.get_success_url())

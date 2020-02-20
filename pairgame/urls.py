@@ -21,6 +21,7 @@ from pairgame import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('django.contrib.auth.urls')),
     path('', include('users.urls', namespace='users')),
     path('', include('worlds.urls', namespace='worlds'))
 ]

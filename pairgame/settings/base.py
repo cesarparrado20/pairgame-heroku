@@ -138,3 +138,9 @@ cred = credentials.Certificate(BASE_DIR + "/pair-game-unillanos-firebase-adminsd
 FIREBASE = firebase_admin.initialize_app(
     cred, {'databaseURL': 'https://pair-game-unillanos.firebaseio.com/'}
 )
+
+# Authentication url
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/scraping/'
+LOGOUT_REDIRECT_URL = '/'
