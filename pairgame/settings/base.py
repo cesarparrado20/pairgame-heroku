@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import firebase_admin
+from firebase_admin import credentials
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
@@ -128,3 +131,8 @@ REST_FRAMEWORK_DEFAULT_AUTHENTICATION_CLASSES = [
     'rest_framework.authentication.BasicAuthentication',
     'rest_framework.authentication.TokenAuthentication'
 ]
+
+# Firebase configuration
+
+cred = credentials.Certificate(BASE_DIR + "/pair-game-unillanos-firebase-adminsdk.json")
+FIREBASE = firebase_admin.initialize_app(cred)
