@@ -7,5 +7,5 @@ app_name = 'users'
 urlpatterns = [
     path('api/register/', RegisterAPIView.as_view()),
     path('api/login/', LoginAPIView.as_view()),
-    path('scraping/', FirebaseView.as_view(), name='scraping_view'),
+    path('', FirebaseView.as_view(), name='scraping_view'),
 ]

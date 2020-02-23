@@ -1,4 +1,6 @@
 import urllib.request as rq
+from collections import ChainMap
+
 from bs4 import BeautifulSoup
 from firebase_admin import db
 
@@ -8,33 +10,34 @@ def get_content_page(url):
     soup = BeautifulSoup(html_content, "html.parser")
     return soup
 
+
 def get_level(total):
-    option = (total % 3)
+    option = (total % 4)
     options = {
-        0: (total / 3),
-        1: ((total + 2) / 3),
-        2: ((total + 1) / 3)
+        0: (total / 4),
+        1: ((total + 3) / 4),
+        2: ((total + 2) / 4),
+        3: ((total + 1) / 4)
     }
     level = options.get(option)
-    return level
+    return int(level)
 
 
 def web_scraping(initial=False):
     base_url = "https://www.eso.org/public/images/potw/list/"
     initial_content = get_content_page(base_url + "1/")
     publications = initial_content.find_all("div", {"class": "news-wrapper"})
-    image_ref = db.reference('/images')
-    images = image_ref.get()
+    world_ref = db.reference('/worlds')
+    worlds_firebase = world_ref.get()
+    worlds = {}
     images_keys = []
-    if images:
-        images = dict(images)
-        images_keys = list(images.keys())
-    else:
-        images = {}
+    if worlds:
+        worlds = dict(worlds_firebase)
+        images_keys = list(dict(ChainMap(*worlds.values())).keys())
     count = len(images_keys) + 1
     last_level = get_level(count)
     if initial:
-        for i in range(2, 6):
+        for i in range(2, 15):
             aux_content = get_content_page(base_url + "{}/".format(i))
             aux_publications = aux_content.find_all("div", {"class": "news-wrapper"})
             publications = publications + aux_publications
@@ -48,15 +51,14 @@ def web_scraping(initial=False):
         if id not in images_keys:
             new_level = get_level(count)
             if new_level != last_level:
-                images.update(aux_dict)
+                worlds.update({
+                    'w{}'.format(last_level): aux_dict
+                })
                 aux_dict = {}
             aux_dict.update({
-                id: {
-                    "url": url, "title": title, "description": description,
-                    "level": new_level
-                }
+                id: {"url": url, "title": title, "description": description}
             })
             images_keys.append(id)
             count = count + 1
             last_level = new_level
-    image_ref.set(images)
+    world_ref.set(worlds)
