@@ -28,11 +28,14 @@ def web_scraping(initial=False):
     initial_content = get_content_page(base_url + "1/")
     publications = initial_content.find_all("div", {"class": "news-wrapper"})
     world_ref = db.reference('/worlds')
+    worlds_count_ref = db.reference('/count')
     worlds_firebase = world_ref.get()
     worlds = {}
     images_keys = []
+    worlds_count = 0
     if worlds_firebase:
         worlds = dict(worlds_firebase)
+        worlds_count = len(worlds)
         images_keys = list(dict(ChainMap(*worlds.values())).keys())
     count = len(images_keys) + 1
     last_level = get_level(count)
@@ -54,6 +57,7 @@ def web_scraping(initial=False):
                 worlds.update({
                     'w{}'.format(last_level): aux_dict
                 })
+                worlds_count = worlds_count + 1
                 aux_dict = {}
             aux_dict.update({
                 id: {"url": url, "title": title, "description": description}
@@ -62,3 +66,4 @@ def web_scraping(initial=False):
             count = count + 1
             last_level = new_level
     world_ref.set(worlds)
+    worlds_count_ref.update({"worldsCount": worlds_count})
