@@ -5,6 +5,8 @@ migrate:
 	./manage.py migrate --settings=pairgame.settings.local
 superuser:
 	./manage.py createsuperuser --settings=pairgame.settings.local
+shell:
+	./manage.py shell --settings=pairgame.settings.local
 clean:
 	rm -rf */migrations/00**.py
 	find . -name "*.pyc" -exec rm -- {} +

@@ -31,7 +31,7 @@ def web_scraping(initial=False):
     worlds_firebase = world_ref.get()
     worlds = {}
     images_keys = []
-    if worlds:
+    if worlds_firebase:
         worlds = dict(worlds_firebase)
         images_keys = list(dict(ChainMap(*worlds.values())).keys())
     count = len(images_keys) + 1
