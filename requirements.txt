@@ -4,7 +4,7 @@ billiard==3.5.0.5
 CacheControl==0.12.6
 cachetools==4.0.0
 celery==4.2.1
-certifi==2019.11.28
+certifi==2022.12.7
 chardet==3.0.4
 dj-database-url==0.5.0
 Django==2.2
